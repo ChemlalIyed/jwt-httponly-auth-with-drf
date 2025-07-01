@@ -6,25 +6,36 @@
   <title>Document</title>
 </head>
 <script>
-    async function login() {
+  async function login() {
+    const email = document.getElementById("email_input").value
+    const password = document.getElementById("password_input").value
+    console.log(email,password)
     const response = await fetch("http://127.0.0.1:8000/api/login/",{method:"POST",credentials:"include",headers:{
       "Content-Type":"application/json"
-    },body:JSON.stringify({"username":"iyed","password":"12345678"})})
+    },body:JSON.stringify({"email":email,"password":password})})
     const data = await response.json()
     console.log(data)
+   first_call()
   }
   async function test() {
-    let response = await fetch("http://127.0.0.1:8000/api/",{method:"GET",credentials:"include"})
+    let response = await fetch("http://127.0.0.1:8000/api/protected_view/",{method:"GET",credentials:"include"})
     console.log(response.status)
     if (response.status==401){
       await refresh()
-      response = await fetch("http://127.0.0.1:8000/api/",{method:"GET",credentials:"include"})
+      response = await fetch("http://127.0.0.1:8000/api/protected_view/",{method:"GET",credentials:"include"})
     }
     const data = await response.json()
     console.log(data)
+    var newele
+    data.forEach(element => {
+       newele=document.createElement('li')
+       newele.innerText=(element.id + '\t'+ element.username).toUpperCase()
+       list.appendChild(newele)
+    });
+   
   }
     async function refresh() {
-    const response = await fetch("http://127.0.0.1:8000/api/token/refresh",{method:"POST",credentials:"include"})
+    const response = await fetch("http://127.0.0.1:8000/api/token/refresh/",{method:"POST",credentials:"include"})
     const data = await response.json()
     console.log(data)
   }
@@ -32,12 +43,47 @@
     const response = await fetch("http://127.0.0.1:8000/api/logout/",{method:"get",credentials:"include"})
     const data = await response.json()
     console.log(data)
+    window.location.reload()
   }
+   async function is_auth() {
+    const response = await fetch("http://127.0.0.1:8000/api/is_auth/",{method:"get",credentials:"include"})
+    const data = await response.json()
+    return data.is_authenticated
+  }
+
+  ////////////////////////////////////////////////////
+  let j = 0
+  first_call()
+  async function first_call() {
+      const i= await is_auth()
+      let login_f = document.getElementById("login_f")
+      let list = document.getElementById("list")
+      let list_div = document.getElementById("list_div")
+      console.log(i)
+      if (j==0) {
+        j++;
+        await refresh()
+        first_call()
+      }
+    if (i){
+      login_f.style.display="none"
+      list_div.style.display="block"
+      test()
+  }
+  }
+
 </script>
 <body>
-  <button onclick="logout()">LOgout</button>
-  <button onclick="login()">Login</button>
-  <button onclick="test()">Test</button>
-  <button onclick="refresh()">Ref</button>
+  <div id="login_f">
+  <h1>Login Form</h1>
+  <input type="email" placeholder="Enter email..." id="email_input">
+  <input type="password" placeholder="Enter password..." id="password_input">
+  <button onclick="login()">Login</button></div>
+  <div id="list_div" style="display: none;">
+    <label>User list</label>
+    <ul id="list"></ul>
+    <button onclick="logout()">Logout</button>
+  </div>
+    
 </body>
 </html>

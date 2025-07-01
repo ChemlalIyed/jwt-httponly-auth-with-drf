@@ -27,7 +27,7 @@ class Login(APIView):
      def post(self,request):
         password = request.data.get('password')
         email = request.data.get('email')
-        print(email)
+        print(email,password)
         usere = get_object_or_404(User,email=email)
         if not usere.is_active and usere.check_password(password):
                 return Response({"detail": " not active go to email"}, status=status.HTTP_400_BAD_REQUEST)
@@ -98,12 +98,22 @@ class Signup(APIView):
             )
             return response
         return Response({"errors":serilaize.error_messages})
-class Test(ModelViewSet):
+class Getusers(ModelViewSet):
     throttle_classes=[]
     permission_classes=[IsAuthenticated]
     queryset=User.objects.all()
     serializer_class=UserSerializer    
 # Create your views here.
+class Is_auth(APIView):
+    permission_classes=[AllowAny]
+    def get(self,request):
+        user =request.user
+        print(user)
+        if user.is_authenticated:
+            return Response({"is_authenticated":True,"user":user.username})
+        else:
+            return Response({"is_authenticated":False})
+
 class Logout(APIView):
     def get(self,request):
         response=Response({'logout':True})
