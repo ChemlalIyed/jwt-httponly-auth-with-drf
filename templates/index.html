@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<script>
+    async function login() {
+    const response = await fetch("http://127.0.0.1:8000/api/login/",{method:"POST",credentials:"include",headers:{
+      "Content-Type":"application/json"
+    },body:JSON.stringify({"username":"iyed","password":"12345678"})})
+    const data = await response.json()
+    console.log(data)
+  }
+  async function test() {
+    let response = await fetch("http://127.0.0.1:8000/api/",{method:"GET",credentials:"include"})
+    console.log(response.status)
+    if (response.status==401){
+      await refresh()
+      response = await fetch("http://127.0.0.1:8000/api/",{method:"GET",credentials:"include"})
+    }
+    const data = await response.json()
+    console.log(data)
+  }
+    async function refresh() {
+    const response = await fetch("http://127.0.0.1:8000/api/token/refresh",{method:"POST",credentials:"include"})
+    const data = await response.json()
+    console.log(data)
+  }
+  async function logout() {
+    const response = await fetch("http://127.0.0.1:8000/api/logout/",{method:"get",credentials:"include"})
+    const data = await response.json()
+    console.log(data)
+  }
+</script>
+<body>
+  <button onclick="logout()">LOgout</button>
+  <button onclick="login()">Login</button>
+  <button onclick="test()">Test</button>
+  <button onclick="refresh()">Ref</button>
+</body>
+</html>
